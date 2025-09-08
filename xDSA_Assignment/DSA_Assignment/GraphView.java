@@ -17,52 +17,45 @@ class GraphView extends Pane {
         // --- Positioning ---
         int diseaseCenterX = width / 4;   // left side
         int symptomCenterX = 3 * width / 4; // right side
-        int centerY = height / 2;
-        int diseaseRadius = Math.min(width, height) / 3;
-        int symptomRadius = Math.min(width, height) / 3;
+        int diseaseSpacing = height / (diseaseCount + 1);
+        int symptomSpacing = height / (symptomCount + 1);
 
         // Store coordinates for later when drawing edges
         double[][] diseaseCoords = new double[diseaseCount][2];
         double[][] symptomCoords = new double[symptomCount][2];
 
-        // --- Draw diseases in a circle on the left ---
+        // disease going down
         String[] allDiseases = graph.getAllDiseases();
         for (int i = 0; i < diseaseCount; i++) {
-            double angle = 2 * Math.PI * i / diseaseCount;
-            int x = (int) (diseaseCenterX + diseaseRadius * Math.cos(angle));
-            int y = (int) (centerY + diseaseRadius * Math.sin(angle));
-
-            diseaseCoords[i][0] = x;
+            int y = (i + 1) * diseaseSpacing; // stacked position
+            diseaseCoords[i][0] = diseaseCenterX;
             diseaseCoords[i][1] = y;
 
-            Circle circle = new Circle(x, y, 15);
+            Circle circle = new Circle(diseaseCenterX, y, 15);
             circle.setFill(Color.LIGHTBLUE);
             circle.setStroke(Color.BLACK);
             getChildren().add(circle);
-            getChildren().add(new Text(x - 15, y - 20, allDiseases[i]));
+            getChildren().add(new Text(diseaseCenterX - 20, y - 20, allDiseases[i]));
         }
 
-        // --- Draw symptoms in a circle on the right ---
+        // symptom goin down 
         String[] allSymptoms = graph.getAllSymptoms();
         for (int i = 0; i < symptomCount; i++) {
-            double angle = 2 * Math.PI * i / symptomCount;
-            int x = (int) (symptomCenterX + symptomRadius * Math.cos(angle));
-            int y = (int) (centerY + symptomRadius * Math.sin(angle));
-
-            symptomCoords[i][0] = x;
+            int y = (i + 1) * symptomSpacing; // stacked position
+            symptomCoords[i][0] = symptomCenterX;
             symptomCoords[i][1] = y;
 
-            Circle circle = new Circle(x, y, 15);
+            Circle circle = new Circle(symptomCenterX, y, 15);
             circle.setFill(Color.LIGHTGREEN);
             circle.setStroke(Color.BLACK);
             getChildren().add(circle);
-            getChildren().add(new Text(x - 15, y - 20, allSymptoms[i]));
+            getChildren().add(new Text(symptomCenterX - 20, y - 20, allSymptoms[i]));
         }
 
         // --- Draw edges (disease ↔ symptom) ---
         for (int i = 0; i < diseaseCount; i++) {
             String disease = allDiseases[i];
-            String[] neighbors = graph.getNeighbors1(disease); // symptoms connected to this disease
+            String[] neighbors = graph.getNeighbors1(disease);
 
             for (String symptom : neighbors) {
                 int sIndex = graph.getIndex2(symptom);
