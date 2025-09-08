@@ -16,24 +16,30 @@ public class NetworkViewer extends Application {
     public void start(Stage stage) {
         primaryStage = stage;
         fxStarted = true;
-        Platform.setImplicitExit(false); // Prevent JavaFX from exiting when window closes
-        if (graph == null) {
-            System.out.println("Error: No graph provided in start");
-            return;
+        Platform.setImplicitExit(false);
+        if (graph != null) {
+            openWindow(graph);
         }
-        openWindow(graph);
     }
 
     public static void show(UnweightedGraph network) {
         if (!fxStarted) {
-            fxStarted = true;
-            Platform.startup(() -> {
-                Platform.setImplicitExit(false);
-                openWindow(network);
-            });
-        } else {
-            Platform.runLater(() -> openWindow(network));
+            // Initialize JavaFX platform if not already started
+            new Thread(() -> Application.launch(NetworkViewer.class)).start();
+            
+            // Wait for JavaFX to initialize
+            while (!fxStarted) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+        
+        // Set the graph and open window
+        graph = network;
+        Platform.runLater(() -> openWindow(network));
     }
 
     private static void openWindow(UnweightedGraph network) {
@@ -41,13 +47,14 @@ public class NetworkViewer extends Application {
             System.out.println("Error: No graph provided");
             return;
         }
-        graph = network;
+        
         if (primaryStage == null) {
             primaryStage = new Stage();
         }
-        GraphView view = new GraphView(graph);
-        Scene scene = new Scene(view, 600, 400);
-        primaryStage.setTitle("Disease Network");
+        
+        GraphView view = new GraphView(network);
+        Scene scene = new Scene(view, 800, 600);  // Increased size for better visibility
+        primaryStage.setTitle("Disease Network Visualization");
         primaryStage.setScene(scene);
         primaryStage.setOnCloseRequest(event -> {
             event.consume();

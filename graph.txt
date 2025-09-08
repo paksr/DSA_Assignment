@@ -1,10 +1,8 @@
 # Diseases
-Covid 19
-Influza A
-Influza B
+hello
+hh
 # Symptoms
-flu
-fever
-cough
+byebye
+dd
 # Connections
-Covid 19 -> flu
+hello -> byebye

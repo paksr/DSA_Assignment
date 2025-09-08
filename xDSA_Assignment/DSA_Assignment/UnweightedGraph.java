@@ -1,4 +1,3 @@
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -11,18 +10,7 @@ class UnweightedGraph extends DiseaseGraph {
         super();
     }
 
-    public void display() {
-        System.out.println("Vertices and their neighbors:");
-        for (int i = 0; i < diseases.size(); i++) {
-            System.out.print(diseases.get(i) + ": ");
-            for (String connections : connections.get(i)) {
-                System.out.print(connections + " ");
-            }
-            System.out.println();
-        }
-    }
-
-    // Save network to file
+    // Add missing methods that are called from TheDoctor
     public void saveToFile(String filename) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
             // Save diseases
@@ -42,15 +30,16 @@ class UnweightedGraph extends DiseaseGraph {
             for (String disease : diseases) {
                 ArrayList<String> neighbors = connections.get(disease);
                 for (String symptom : neighbors) {
-                    writer.println(disease + " -> " + symptom);
+                    if (symptoms.contains(symptom)) {
+                        writer.println(disease + " -> " + symptom);
+                    }
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error saving to file: " + e.getMessage());
         }
     }
 
-    // Load network from file
     public void loadFromFile(String filename) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
@@ -83,7 +72,7 @@ class UnweightedGraph extends DiseaseGraph {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error loading from file: " + e.getMessage());
         }
     }
 }

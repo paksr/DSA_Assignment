@@ -186,7 +186,7 @@ public class TheDoctor {
             if (graph.addVertex2(symptom)) {
                 System.out.println("Successfully added: " + symptom);
             } else {
-                System.out.println("Disease '" + symptom + "' already exists!");
+                System.out.println("Symptom '" + symptom + "' already exists!"); // Fixed error message
             }
 
             // Prompt to continue
@@ -202,7 +202,6 @@ public class TheDoctor {
             if (continueChoice.equals("N")) {
                 break; // Exit the loop
             }
-            // If 'Y', loop continues to prompt for another disease
         }
 
         System.out.print("Press Enter to continue...");
@@ -218,10 +217,10 @@ public class TheDoctor {
             return;
         }
 
-        System.out.println("Current symptom: ");
-        String[] symptom = graph.getAllSymptoms();
-        for (int i = 0; i < symptom.length; i++) {
-            System.out.println((i + 1) + ". " + symptom[i]);
+        System.out.println("Current symptoms: "); // Fixed label
+        String[] symptoms = graph.getAllSymptoms(); // Fixed variable name
+        for (int i = 0; i < symptoms.length; i++) {
+            System.out.println((i + 1) + ". " + symptoms[i]);
         }
 
         String symptomToRemove = getStringInput("Enter symptom name to remove: ");
@@ -236,47 +235,89 @@ public class TheDoctor {
         scanner.nextLine();
     }
 
-    // Connect two diseases
+    // connect disease and symptom
     public static void connectDiseases() {
-        System.out.println("\n--- Connect Diseases ---");
-        if (graph.getSize1() < 1 && graph.getSize2() < 1) {
-            System.out.println("Need at least 1 diseases and 1 symptoms to create a connection.");
-            System.out.print("Press Enter to continue...");
-            scanner.nextLine();
-            return;
-        }
+    System.out.println("\n--- Connect Diseases ---");
+    if (graph.getSize1() < 1 || graph.getSize2() < 1) {
+        System.out.println("Need at least 1 disease and 1 symptom to create a connection.");
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
+        return;
+    }
 
-        System.out.println("Available diseases and symptoms: ");
+    while (true) {
+        System.out.println("Available diseases: ");
         String[] diseases = graph.getAllDiseases();
         for (int i = 0; i < diseases.length; i++) {
             System.out.println((i + 1) + ". " + diseases[i]);
         }
 
-        String disease1 = getStringInput("Enter the disease: ");
-        String symptom1 = getStringInput("Enter the symptom: ");
-
-        if (disease1.equals(symptom1)) {
-            System.out.println("Cannot connect a disease to itself!");
-        } else if (graph.addEdge(disease1, symptom1)) {
-            System.out.println("Successfully connected: " + disease1 + " ↔ " + symptom1);
-        } else {
-            System.out.println(" Connection failed. Check if both diseases exist and aren't already connected.");
+        System.out.println("\nAvailable symptoms: ");
+        String[] symptoms = graph.getAllSymptoms();
+        for (int i = 0; i < symptoms.length; i++) {
+            System.out.println((i + 1) + ". " + symptoms[i]);
         }
 
-        System.out.print("Press Enter to continue...");
-        scanner.nextLine();
+        String disease = getStringInput("\nEnter the disease: ");
+        String symptom = getStringInput("Enter the symptom: ");
+
+        if (!graph.hasVertex1(disease)) {
+            System.out.println("Disease '" + disease + "' does not exist!");
+        } else if (!graph.hasVertex2(symptom)) {
+            System.out.println("Symptom '" + symptom + "' does not exist!");
+        } else if (graph.addEdge(disease, symptom)) {
+            System.out.println("Successfully connected: " + disease + " <-> " + symptom);
+        } else {
+            System.out.println("Connection failed. They might already be connected.");
+        }
+
+        // Prompt to continue
+        String continueChoice;
+        do {
+            System.out.print("Continue? (Y/N): ");
+            continueChoice = scanner.nextLine().trim().toUpperCase();
+            if (!continueChoice.equals("Y") && !continueChoice.equals("N")) {
+                System.out.println("Invalid input. Please enter 'Y' or 'N'.");
+            }
+        } while (!continueChoice.equals("Y") && !continueChoice.equals("N"));
+
+        if (continueChoice.equals("N")) {
+            break;
+        }
     }
+
+    System.out.print("Press Enter to continue...");
+    scanner.nextLine();
+}
+
 
     // Remove connection between diseases
     public static void removeConnection() {
         System.out.println("\n--- Remove Connection ---");
-        String disease1 = getStringInput("Enter the disease: ");
-        String symptom1 = getStringInput("Enter the symptom: ");
 
-        if (graph.removeEdge(disease1, symptom1)) {
-            System.out.println("Successfully removed connection between: " + disease1 + " and " + symptom1);
+        System.out.println("Available diseases: ");
+        String[] diseases = graph.getAllDiseases();
+        for (int i = 0; i < diseases.length; i++) {
+            System.out.println((i + 1) + ". " + diseases[i]);
+        }
+
+        System.out.println("\nAvailable symptoms: ");
+        String[] symptoms = graph.getAllSymptoms();
+        for (int i = 0; i < symptoms.length; i++) {
+            System.out.println((i + 1) + ". " + symptoms[i]);
+        }
+
+        String disease = getStringInput("\nEnter the disease: ");
+        String symptom = getStringInput("Enter the symptom: ");
+
+        if (!graph.hasVertex1(disease)) {
+            System.out.println("Disease '" + disease + "' does not exist!");
+        } else if (!graph.hasVertex2(symptom)) {
+            System.out.println("Symptom '" + symptom + "' does not exist!");
+        } else if (graph.removeEdge(disease, symptom)) {
+            System.out.println("Successfully removed connection between: " + disease + " and " + symptom);
         } else {
-            System.out.println(" Connection not found or diseases don't exist.");
+            System.out.println("Connection not found between these disease and symptom.");
         }
 
         System.out.print("Press Enter to continue...");
@@ -346,7 +387,9 @@ public class TheDoctor {
 
     // Main program
     public static void main(String[] args) {
+        // Load data from file if it exists
         graph.loadFromFile("graph.txt");
+
         System.out.println("Starting Disease Network System...");
 
         while (true) {
@@ -365,48 +408,46 @@ public class TheDoctor {
                     return;
 
                 case 1:
-                    clearScreen();
-                    Art.Logo();
-                    createGraph();
+                    boolean continueCreating = true;
+                    while (continueCreating) {
+                        clearScreen();
+                        Art.Logo();
+                        createGraph();
+                        int choice2 = getIntInputAgain(0, 6);
 
-                    int choice2 = getIntInputAgain(0, 6);
-
-                    switch (choice2) {
-
-                        case 0:
-                            menu();
-                            break;
-
-                        case 1:
-                            addDisease();
-                            break;
-                        case 2:
-                            removeDisease();
-                            break;
-                        case 3:
-                            addSymptom();
-                            break;
-                        case 4:
-                            removeSymptom();
-                            break;
-                        case 5:
-                            connectDiseases();
-                            break;
-                        case 6:
-                            removeConnection();
-                            break;
-
+                        switch (choice2) {
+                            case 0:
+                                continueCreating = false;
+                                break;
+                            case 1:
+                                addDisease();
+                                break;
+                            case 2:
+                                removeDisease();
+                                break;
+                            case 3:
+                                addSymptom();
+                                break;
+                            case 4:
+                                removeSymptom();
+                                break;
+                            case 5:
+                                connectDiseases();
+                                break;
+                            case 6:
+                                removeConnection();
+                                break;
+                        }
                     }
                     break;
 
                 case 2:
                     searchDisease();
-
                     break;
+
                 case 3:
                     viewNetwork();
                     break;
-
             }
         }
     }
