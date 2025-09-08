@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.*;
 
@@ -25,7 +26,7 @@ public class TheDoctor {
 
     public static void menu() {
         System.out.println("Welcome to The Doctor!\n");
-        System.out.println("\nMenu: Enter '1' to '3' to continue.");
+        System.out.println("\nMenu: Enter '0' to '3' to continue.");
         System.out.println("-".repeat(36));
         System.out.println("      1. Create Graph");
         System.out.println("      2. Search for a Disease");
@@ -35,12 +36,14 @@ public class TheDoctor {
     }
 
     public static void createGraph() {
-        System.out.println("Create Graph: Enter '1' to '5' for updating the graph.");
+        System.out.println("Create Graph: Enter '0' to '6' for updating the graph.");
         System.out.println("-".repeat(56));
         System.out.println("      1. Add a disease");
         System.out.println("      2. Remove a disease");
-        System.out.println("      3. Add an edge");
-        System.out.println("      4. Remove an edge");
+        System.out.println("      3. Add a symptom");
+        System.out.println("      4. Remove a symptom");
+        System.out.println("      5. Add an edge");
+        System.out.println("      6. Remove an edge");
         System.out.println("      0. Return to the main menu");
         System.out.print("  Selection: ");
     }
@@ -121,7 +124,7 @@ public class TheDoctor {
         while (true) {
             String disease = getStringInput("Enter disease name: ");
 
-            if (graph.addVertex(disease)) {
+            if (graph.addVertex1(disease)) {
                 System.out.println("Successfully added: " + disease);
             } else {
                 System.out.println("Disease '" + disease + "' already exists!");
@@ -150,7 +153,7 @@ public class TheDoctor {
     // Remove a disease from the network
     public static void removeDisease() {
         System.out.println("\n--- Remove Disease ---");
-        if (graph.getSize() == 0) {
+        if (graph.getSize1() == 0) {
             System.out.println("No diseases in the network.");
             System.out.print("Press Enter to continue...");
             scanner.nextLine();
@@ -165,7 +168,7 @@ public class TheDoctor {
 
         String disease = getStringInput("Enter disease name to remove: ");
 
-        if (graph.removeVertex(disease)) {
+        if (graph.removeVertex1(disease)) {
             System.out.println("Successfully removed: " + disease);
         } else {
             System.out.println("Disease '" + disease + "' not found!");
@@ -175,29 +178,87 @@ public class TheDoctor {
         scanner.nextLine();
     }
 
-    // Connect two diseases
-    public static void connectDiseases() {
-        System.out.println("\n--- Connect Diseases ---");
-        if (graph.getSize() < 2) {
-            System.out.println("Need at least 2 diseases to create a connection.");
+    public static void addSymptom() {
+        System.out.println("\n--- Add Symptom ---");
+        while (true) {
+            String symptom = getStringInput("Enter Symptom name: ");
+
+            if (graph.addVertex2(symptom)) {
+                System.out.println("Successfully added: " + symptom);
+            } else {
+                System.out.println("Disease '" + symptom + "' already exists!");
+            }
+
+            // Prompt to continue
+            String continueChoice;
+            do {
+                System.out.print("Continue? (Y/N): ");
+                continueChoice = scanner.nextLine().trim().toUpperCase();
+                if (!continueChoice.equals("Y") && !continueChoice.equals("N")) {
+                    System.out.println("Invalid input. Please enter 'Y' or 'N'.");
+                }
+            } while (!continueChoice.equals("Y") && !continueChoice.equals("N"));
+
+            if (continueChoice.equals("N")) {
+                break; // Exit the loop
+            }
+            // If 'Y', loop continues to prompt for another disease
+        }
+
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
+    }
+
+    public static void removeSymptom() {
+        System.out.println("\n--- Remove Symptom ---");
+        if (graph.getSize2() == 0) {
+            System.out.println("No symptoms in the network.");
             System.out.print("Press Enter to continue...");
             scanner.nextLine();
             return;
         }
 
-        System.out.println("Available diseases: ");
+        System.out.println("Current symptom: ");
+        String[] symptom = graph.getAllSymptoms();
+        for (int i = 0; i < symptom.length; i++) {
+            System.out.println((i + 1) + ". " + symptom[i]);
+        }
+
+        String symptomToRemove = getStringInput("Enter symptom name to remove: ");
+
+        if (graph.removeVertex2(symptomToRemove)) {
+            System.out.println("Successfully removed: " + symptomToRemove);
+        } else {
+            System.out.println("Symptom '" + symptomToRemove + "' not found!");
+        }
+
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
+    }
+
+    // Connect two diseases
+    public static void connectDiseases() {
+        System.out.println("\n--- Connect Diseases ---");
+        if (graph.getSize1() < 1 && graph.getSize2() < 1) {
+            System.out.println("Need at least 1 diseases and 1 symptoms to create a connection.");
+            System.out.print("Press Enter to continue...");
+            scanner.nextLine();
+            return;
+        }
+
+        System.out.println("Available diseases and symptoms: ");
         String[] diseases = graph.getAllDiseases();
         for (int i = 0; i < diseases.length; i++) {
             System.out.println((i + 1) + ". " + diseases[i]);
         }
 
-        String disease1 = getStringInput("Enter first disease: ");
-        String disease2 = getStringInput("Enter second disease: ");
+        String disease1 = getStringInput("Enter the disease: ");
+        String symptom1 = getStringInput("Enter the symptom: ");
 
-        if (disease1.equals(disease2)) {
+        if (disease1.equals(symptom1)) {
             System.out.println("Cannot connect a disease to itself!");
-        } else if (graph.addEdge(disease1, disease2)) {
-            System.out.println("Successfully connected: " + disease1 + " ↔ " + disease2);
+        } else if (graph.addEdge(disease1, symptom1)) {
+            System.out.println("Successfully connected: " + disease1 + " ↔ " + symptom1);
         } else {
             System.out.println(" Connection failed. Check if both diseases exist and aren't already connected.");
         }
@@ -209,11 +270,11 @@ public class TheDoctor {
     // Remove connection between diseases
     public static void removeConnection() {
         System.out.println("\n--- Remove Connection ---");
-        String disease1 = getStringInput("Enter first disease: ");
-        String disease2 = getStringInput("Enter second disease: ");
+        String disease1 = getStringInput("Enter the disease: ");
+        String symptom1 = getStringInput("Enter the symptom: ");
 
-        if (graph.removeEdge(disease1, disease2)) {
-            System.out.println("Successfully removed connection between: " + disease1 + " and " + disease2);
+        if (graph.removeEdge(disease1, symptom1)) {
+            System.out.println("Successfully removed connection between: " + disease1 + " and " + symptom1);
         } else {
             System.out.println(" Connection not found or diseases don't exist.");
         }
@@ -227,18 +288,18 @@ public class TheDoctor {
         System.out.println("\n--- Search Disease ---");
         String disease = getStringInput("Enter disease name to search: ");
 
-        if (!graph.hasVertex(disease)) {
+        if (!graph.hasVertex1(disease)) {
             System.out.println(" Disease '" + disease + "' not found in the network.");
         } else {
             System.out.println("Found: " + disease);
-            String[] neighbors = graph.getNeighbors(disease);
+            String[] neighbors = graph.getNeighbors1(disease);
 
             if (neighbors.length == 0) {
                 System.out.println("  No connected diseases.");
             } else {
                 System.out.println("  Connected to:");
                 for (String neighbor : neighbors) {
-                    System.out.println("    → " + neighbor);
+                    System.out.println("    -> " + neighbor);
                 }
             }
         }
@@ -250,7 +311,7 @@ public class TheDoctor {
     // Traverse the network starting from a disease
     public static void traverseNetwork() {
         System.out.println("\n--- Traverse Network ---");
-        if (graph.getSize() == 0) {
+        if (graph.getSize1() == 0) {
             System.out.println("No diseases in the network.");
             System.out.print("Press Enter to continue...");
             scanner.nextLine();
@@ -272,77 +333,6 @@ public class TheDoctor {
         scanner.nextLine();
     }
 
-    // Save network to file
-    public static void saveToFile() {
-        System.out.println("\n--- Save to File ---");
-        try {
-            // Save diseases
-            FileWriter diseaseWriter = new FileWriter("diseases.txt");
-            String[] diseases = graph.getAllDiseases();
-            for (String disease : diseases) {
-                diseaseWriter.write(disease + "\n");
-            }
-            diseaseWriter.close();
-
-            // Save connections
-            FileWriter connectionWriter = new FileWriter("connections.txt");
-            for (String disease : diseases) {
-                String[] neighbors = graph.getNeighbors(disease);
-                for (String neighbor : neighbors) {
-                    // Only write each connection once (avoid duplicates)
-                    if (disease.compareTo(neighbor) < 0) {
-                        connectionWriter.write(disease + "," + neighbor + "\n");
-                    }
-                }
-            }
-            connectionWriter.close();
-
-            System.out.println("Network saved successfully!");
-        } catch (IOException e) {
-            System.out.println(" Error saving to file: " + e.getMessage());
-        }
-
-        System.out.print("Press Enter to continue...");
-        scanner.nextLine();
-    }
-
-    // Load network from file
-    public static void loadFromFile() {
-        System.out.println("\n--- Load from File ---");
-        try {
-            // Load diseases
-            BufferedReader diseaseReader = new BufferedReader(new FileReader("diseases.txt"));
-            String disease;
-            while ((disease = diseaseReader.readLine()) != null) {
-                disease = disease.trim();
-                if (!disease.isEmpty()) {
-                    graph.addVertex(disease);
-                }
-            }
-            diseaseReader.close();
-
-            // Load connections
-            BufferedReader connectionReader = new BufferedReader(new FileReader("connections.txt"));
-            String connection;
-            while ((connection = connectionReader.readLine()) != null) {
-                String[] parts = connection.split(",");
-                if (parts.length == 2) {
-                    graph.addEdge(parts[0].trim(), parts[1].trim());
-                }
-            }
-            connectionReader.close();
-
-            System.out.println("Network loaded successfully!");
-        } catch (FileNotFoundException e) {
-            System.out.println(" No saved files found.");
-        } catch (IOException e) {
-            System.out.println(" Error loading from file: " + e.getMessage());
-        }
-
-        System.out.print("Press Enter to continue...");
-        scanner.nextLine();
-    }
-
     public static void viewNetwork() {
         try {
             NetworkViewer.setGraph(graph);
@@ -356,6 +346,7 @@ public class TheDoctor {
 
     // Main program
     public static void main(String[] args) {
+        graph.loadFromFile("graph.txt");
         System.out.println("Starting Disease Network System...");
 
         while (true) {
@@ -368,6 +359,7 @@ public class TheDoctor {
             switch (choice) {
                 case 0:
                     System.out.println("\nThank you for using The Doctor!");
+                    graph.saveToFile("graph.txt");
                     System.out.println("Goodbye!");
                     scanner.close();
                     return;
@@ -376,9 +368,8 @@ public class TheDoctor {
                     clearScreen();
                     Art.Logo();
                     createGraph();
-                    
 
-                    int choice2 = getIntInputAgain(0, 4);
+                    int choice2 = getIntInputAgain(0, 6);
 
                     switch (choice2) {
 
@@ -393,9 +384,15 @@ public class TheDoctor {
                             removeDisease();
                             break;
                         case 3:
-                            connectDiseases();
+                            addSymptom();
                             break;
                         case 4:
+                            removeSymptom();
+                            break;
+                        case 5:
+                            connectDiseases();
+                            break;
+                        case 6:
                             removeConnection();
                             break;
 
@@ -404,14 +401,12 @@ public class TheDoctor {
 
                 case 2:
                     searchDisease();
-                    
+
                     break;
                 case 3:
                     viewNetwork();
                     break;
-                    
-                
-                
+
             }
         }
     }

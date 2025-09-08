@@ -1,0 +1,10 @@
+# Diseases
+Covid 19
+Influza A
+Influza B
+# Symptoms
+flu
+fever
+cough
+# Connections
+Covid 19 -> flu
