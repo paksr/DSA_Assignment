@@ -31,6 +31,7 @@ public class TheDoctor {
         System.out.println("      1. Create Graph");
         System.out.println("      2. Search for a Disease");
         System.out.println("      3. View Disease Network");
+        System.out.println("      4. Traverse Network");
         System.out.println("      0. Exit");
         System.out.print("  Selection: ");
     }
@@ -48,7 +49,7 @@ public class TheDoctor {
         System.out.print("  Selection: ");
     }
 
-    // Display the main menu
+    //first main menu (not using this)
     public static void showMenu() {
         System.out.println("╔════════════════════════════════════════╗");
         System.out.println("║            THE DOCTOR                  ║");
@@ -397,7 +398,7 @@ public class TheDoctor {
             Art.Logo();
             menu();
 
-            int choice = getIntInput(0, 3);
+            int choice = getIntInput(0, 4);
 
             switch (choice) {
                 case 0:
@@ -447,6 +448,9 @@ public class TheDoctor {
 
                 case 3:
                     viewNetwork();
+                    break;
+                case 4:
+                    traverseNetwork();
                     break;
             }
         }
